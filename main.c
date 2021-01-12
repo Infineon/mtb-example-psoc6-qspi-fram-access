@@ -2,12 +2,12 @@
 * File Name: main.c
 *
 * Description: This example demonstrates the Cypress' QSPI F-RAM access
-*  using PSoC 6 QSPI HAL (cyhal_qspi) API
+*              using PSoC 6 QSPI HAL (cyhal_qspi) API
 *
 * Related Document: See Readme.md
 *
 *******************************************************************************
-* (c) 2020, Cypress Semiconductor Corporation. All rights reserved.
+* (c) 2019-2020, Cypress Semiconductor Corporation. All rights reserved.
 *******************************************************************************
 * This software, including source code, documentation and related materials
 * ("Software"), is owned by Cypress Semiconductor Corporation or one of its
@@ -72,17 +72,17 @@ cyhal_qspi_t qspi_host_fram_obj;
 *******************************************************************************/
 void check_status(char *message, uint32_t status)
 {
-	if(0u != status)
-	{
-		printf("\r\n================================================================================\r\n");
-		printf("\nFAIL: %s\r\n", message);
-		printf("Error Code: 0x%08lX\r\n", status);
-		printf("\r\n================================================================================\r\n");
-		
-		/* On failure, turn the LED ON */
-		cyhal_gpio_write(CYBSP_LED_RGB_RED, CYBSP_LED_STATE_ON);
-		while(true); /* Wait forever here when error occurs. */
-	}
+    if(0u != status)
+    {
+        printf("\r\n================================================================================\r\n");
+        printf("\nFAIL: %s\r\n", message);
+        printf("Error Code: 0x%08lX\r\n", (long unsigned int)status);
+        printf("\r\n================================================================================\r\n");
+        
+        /* On failure, turn the LED ON */
+        cyhal_gpio_write(CYBSP_USER_LED, CYBSP_LED_STATE_ON);
+        while(true); /* Wait forever here when error occurs. */
+    }
 }
 
 /************************************************************************************
@@ -95,43 +95,43 @@ void check_status(char *message, uint32_t status)
 ************************************************************************************/
 void reset_to_factory_default (void)
 {
-	uint8_t tx[ONE_BYTE_ACCESS];
-	cy_rslt_t result;
+    uint8_t tx[ONE_BYTE_ACCESS];
+    cy_rslt_t result;
 
-	/* Write to CR2 to set the interface mode to SPI */    
-	tx[0] = REG_DEFAULT_VAL;
+    /* Write to CR2 to set the interface mode to SPI */    
+    tx[0] = REG_DEFAULT_VAL;
 
-	/* Try in DPI mode, in case device access mode is DPI after power up */
-	result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, FRAM_BUS_TYPE_DPI);
-	check_status("WREN command failed", result);
-	
-	result = fram_wrar_cmd(&qspi_host_fram_obj, CR2_ADDR_VOLATILE, tx, FRAM_BUS_TYPE_DPI);
-	check_status("WRAR command failed", result);
-
-	/* Try in QPI mode, in case device access mode is QPI after power up */
-	result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, FRAM_BUS_TYPE_QPI);
-	check_status("WREN command failed", result);
-	
-	result = fram_wrar_cmd(&qspi_host_fram_obj, CR2_ADDR_VOLATILE, tx, FRAM_BUS_TYPE_QPI);
-	check_status("WRAR command failed", result);
+    /* Try in DPI mode, in case device access mode is DPI after power up */
+    result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, FRAM_BUS_TYPE_DPI);
+    check_status("WREN command failed", result);
     
-	/* At this point device is confugred to a known (SPI) access mode. 
-	 * Write to CR1 to clear memory latency setting.
-	 */
-	result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, FRAM_BUS_TYPE_SPI);
-	check_status("WREN command failed", result);
-	
-	tx[0] = REG_DEFAULT_VAL;
-	result = fram_wrar_cmd(&qspi_host_fram_obj, CR1_ADDR_VOLATILE, tx, FRAM_BUS_TYPE_SPI); /* Set the access mode */
-	check_status("WRAR command failed", result);
+    result = fram_wrar_cmd(&qspi_host_fram_obj, CR2_ADDR_VOLATILE, tx, FRAM_BUS_TYPE_DPI);
+    check_status("WRAR command failed", result);
+
+    /* Try in QPI mode, in case device access mode is QPI after power up */
+    result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, FRAM_BUS_TYPE_QPI);
+    check_status("WREN command failed", result);
     
-	/* Write to CR5 to clear register latency setting */
-	result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, FRAM_BUS_TYPE_SPI);
-	check_status("WREN command failed", result);
-	
-	tx[0] = REG_DEFAULT_VAL;
-	result = fram_wrar_cmd(&qspi_host_fram_obj, CR5_ADDR_VOLATILE, tx, FRAM_BUS_TYPE_SPI); /* Set the access mode */    
-	check_status("WRAR command failed", result);
+    result = fram_wrar_cmd(&qspi_host_fram_obj, CR2_ADDR_VOLATILE, tx, FRAM_BUS_TYPE_QPI);
+    check_status("WRAR command failed", result);
+    
+    /* At this point device is confugred to a known (SPI) access mode. 
+     * Write to CR1 to clear memory latency setting.
+     */
+    result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, FRAM_BUS_TYPE_SPI);
+    check_status("WREN command failed", result);
+    
+    tx[0] = REG_DEFAULT_VAL;
+    result = fram_wrar_cmd(&qspi_host_fram_obj, CR1_ADDR_VOLATILE, tx, FRAM_BUS_TYPE_SPI); /* Set the access mode */
+    check_status("WRAR command failed", result);
+    
+    /* Write to CR5 to clear register latency setting */
+    result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, FRAM_BUS_TYPE_SPI);
+    check_status("WREN command failed", result);
+    
+    tx[0] = REG_DEFAULT_VAL;
+    result = fram_wrar_cmd(&qspi_host_fram_obj, CR5_ADDR_VOLATILE, tx, FRAM_BUS_TYPE_SPI); /* Set the access mode */    
+    check_status("WRAR command failed", result);
 }
 
 /*******************************************************************************
@@ -152,215 +152,212 @@ void reset_to_factory_default (void)
 *******************************************************************************/
 int main(void)
 {
-	uint8_t rx[DEV_ID_LENGTH_BYTE];
-	uint8_t tx[DEV_ID_LENGTH_BYTE];
-	size_t length = DEV_ID_LENGTH_BYTE;
-	uint8_t write_data[PACKET_SIZE_BYTES];
-	uint8_t read_data[PACKET_SIZE_BYTES];
-	uint32_t index;
-	fram_bus_type_t access_mode;
-	cy_rslt_t result;
+    uint8_t rx[DEV_ID_LENGTH_BYTE];
+    uint8_t tx[DEV_ID_LENGTH_BYTE];
+    size_t length = DEV_ID_LENGTH_BYTE;
+    uint8_t write_data[PACKET_SIZE_BYTES];
+    uint8_t read_data[PACKET_SIZE_BYTES];
+    uint32_t index;
+    fram_bus_type_t access_mode;
+    cy_rslt_t result;
 
-	/* Set up the device based on configurator selections */
-	result = cybsp_init();
+    /* Set up the device based on configurator selections */
+    result = cybsp_init();
 
-	if(result != CY_RSLT_SUCCESS)
-	{
-		CY_ASSERT(0);
-	}
-	
-	/* Enable interrupts */
-	__enable_irq();
-	
-	/* Initialize retarget-io to use the debug UART port */
-	result = cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
-
-	if(result != CY_RSLT_SUCCESS)
-	{
-		__disable_irq();		
-		CY_ASSERT(0);
-	}	
-	
-	printf("\x1b[2J\x1b[;H");
-
-	printf("\r\n******************* CE229303 - PSOC 6 MCU: QSPI F-RAM ACCESS *******************");
-	printf("\r\n*******************************************************************************\r\n");
-
-	/* Initialize the RGB LED */
-	result = cyhal_gpio_init(CYBSP_LED_RGB_RED, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF);
-	check_status("RGB (RED) LED initialization failed", result);
-
-	result = cyhal_gpio_init(CYBSP_LED_RGB_GREEN, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF);
-	check_status("RGB (GREEN) LED initialization failed", result);
-
-	/* Initialize the QSPI control and pins */
-	result = cyhal_qspi_init(&qspi_host_fram_obj, CYBSP_QSPI_D0, CYBSP_QSPI_D1, CYBSP_QSPI_D2, CYBSP_QSPI_D3, NC, NC,
-							NC, NC, CYBSP_QSPI_SCK, CYBSP_FRAM_CS, QSPI_BUS_FREQUENCY_HZ, 0);
-	check_status("CYHAL QSPI initialization failed", result);
-
-
-	/* This function brings the device from DPI or QPI (if set) to 
-	 * factory default status and configuration register settings. 
-	 */
-	reset_to_factory_default();
-	access_mode = FRAM_BUS_TYPE_SPI; /* Sets the access mode for the host */
-	
-	/* This sets the device access mode configuration in volatile register. To make this setting 
-	 * persistent (nonvolatile), you must write into nonvolatile register address. Refer to 
-	 * Excelon(TM) Ultra CY15x104QSN datasheet for register address details. 
-	 */	 
-	result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, access_mode); /* Send the WREN opcode prior to register write */
-	check_status("WREN command failed", result);
-	
-	/* DPI_EN - to set the DPI protocol enable bit '1' in F-RAM CR2 (CR2[4]).
-	 * QPI_EN - to set the QPI protocol enable bit '1' in F-RAM CR2 (CR2[6]). 
-	 */
-	tx[0] = QPI_EN;	
-	
-	/* Write to CR2 to set the F-RAM access mode */			  
-	result = fram_wrar_cmd(&qspi_host_fram_obj, CR2_ADDR_VOLATILE, tx, access_mode); 
-	check_status("WRAR command failed", result);
+    if(result != CY_RSLT_SUCCESS)
+    {
+        CY_ASSERT(0);
+    }
     
-	/* Sets the new access mode for the host, as per the F-RAM access mode setting */  
-	access_mode = FRAM_BUS_TYPE_QPI; 	                   
+    /* Enable interrupts */
+    __enable_irq();
+    
+    /* Initialize retarget-io to use the debug UART port */
+    result = cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
 
-	/*******************************************************************************
-	* Set the F-RAM memory and register access latency
-	********************************************************************************/
+    if(result != CY_RSLT_SUCCESS)
+    {
+        __disable_irq();        
+        CY_ASSERT(0);
+    }   
+    
+    printf("\x1b[2J\x1b[;H");
 
-	/* Send the WREN opcode prior to write into config reg 1 (CR1) for the memory latency setting */
-	result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, access_mode);
-	check_status("WREN command failed", result);
-	
-	tx[0] = (MEM_LATENCY << MEM_LATENCY_POS);
-	result = fram_wrar_cmd(&qspi_host_fram_obj, CR1_ADDR_VOLATILE, tx, access_mode); /* Sets the memory latency (MLC) */
-	check_status("WRAR command failed", result);
+    printf("\r\n******************* CE229303 - PSOC 6 MCU: QSPI F-RAM ACCESS *******************");
+    printf("\r\n*******************************************************************************\r\n");
 
-	/* Send the WREN opcode prior to write into config reg 5 (CR5) for the register latency setting */
-	result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, access_mode);
-	check_status("WREN command failed", result);
-	
-	tx[0] = (REG_LATENCY << REG_LATENCY_POS);
-	result = fram_wrar_cmd(&qspi_host_fram_obj, CR5_ADDR_VOLATILE, tx, access_mode); /* Sets the register latency (RLC) */
-	check_status("WRAR command failed", result);
+    /* Initialize the User LED */
+    result = cyhal_gpio_init(CYBSP_USER_LED, CYHAL_GPIO_DIR_OUTPUT,
+            CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF);
+    check_status("User LED initialization failed", result);
 
-	/*******************************************************************************
-	* Read and Display Device ID and Unique ID of QSPI F-RAM
-	********************************************************************************/
-	
-	printf("Read QSPI F-RAM 8-byte DID - ");
-	result = fram_read_id_cmd (&qspi_host_fram_obj, MEM_CMD_RDID, rx, &length, access_mode, REG_LATENCY);
-	check_status("RDID command failed", result);
+    /* Initialize the QSPI control and pins */
+    result = cyhal_qspi_init(&qspi_host_fram_obj, CYBSP_QSPI_D0, CYBSP_QSPI_D1, CYBSP_QSPI_D2, CYBSP_QSPI_D3, NC, NC,
+                            NC, NC, CYBSP_QSPI_SCK, CYBSP_FRAM_CS, QSPI_BUS_FREQUENCY_HZ, 0);
+    check_status("CYHAL QSPI initialization failed", result);
 
-	for(index = 0; index < length; index++)
-	{
-		printf("0x%02X ", rx[index]);
-	}
-	printf("\r\n");
 
-	printf("Read QSPI F-RAM 8-byte UDID - ");
-	result = fram_read_id_cmd (&qspi_host_fram_obj, MEM_CMD_RUID, rx, &length, access_mode, REG_LATENCY);
-	check_status("RUID command failed", result);
+    /* This function brings the device from DPI or QPI (if set) to 
+     * factory default status and configuration register settings. 
+     */
+    reset_to_factory_default();
+    access_mode = FRAM_BUS_TYPE_SPI; /* Sets the access mode for the host */
+    
+    /* This sets the device access mode configuration in volatile register. To make this setting 
+     * persistent (nonvolatile), you must write into nonvolatile register address. Refer to 
+     * Excelon(TM) Ultra CY15x104QSN datasheet for register address details. 
+     */  
+    result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, access_mode); /* Send the WREN opcode prior to register write */
+    check_status("WREN command failed", result);
+    
+    /* DPI_EN - to set the DPI protocol enable bit '1' in F-RAM CR2 (CR2[4]).
+     * QPI_EN - to set the QPI protocol enable bit '1' in F-RAM CR2 (CR2[6]). 
+     */
+    tx[0] = QPI_EN; 
+    
+    /* Write to CR2 to set the F-RAM access mode */           
+    result = fram_wrar_cmd(&qspi_host_fram_obj, CR2_ADDR_VOLATILE, tx, access_mode); 
+    check_status("WRAR command failed", result);
+    
+    /* Sets the new access mode for the host, as per the F-RAM access mode setting */  
+    access_mode = FRAM_BUS_TYPE_QPI;                       
 
-	for(index = 0; index < length; index++)
-	{
-		printf("0x%02X ", rx[index]);
-	}
-	printf("\r\n\r\n");
+    /*******************************************************************************
+    * Set the F-RAM memory and register access latency
+    ********************************************************************************/
 
-	/*******************************************************************************
-	* Read and Display All Status and Configuration Registers
-	********************************************************************************/
-	
-	printf("Set WEN in SR0\r\n");
-	result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, access_mode);
-	check_status("WREN command failed", result);
+    /* Send the WREN opcode prior to write into config reg 1 (CR1) for the memory latency setting */
+    result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, access_mode);
+    check_status("WREN command failed", result);
+    
+    tx[0] = (MEM_LATENCY << MEM_LATENCY_POS);
+    result = fram_wrar_cmd(&qspi_host_fram_obj, CR1_ADDR_VOLATILE, tx, access_mode); /* Sets the memory latency (MLC) */
+    check_status("WRAR command failed", result);
 
-	printf("Read QSPI F-RAM SR0 ");
-	result = fram_read_SRxCRx_cmd (&qspi_host_fram_obj, MEM_CMD_RDSR1, rx, access_mode, REG_LATENCY);
-	check_status("RDSR1 command failed", result);
-	printf("0x%02X\r\n", rx[0]);	
+    /* Send the WREN opcode prior to write into config reg 5 (CR5) for the register latency setting */
+    result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, access_mode);
+    check_status("WREN command failed", result);
+    
+    tx[0] = (REG_LATENCY << REG_LATENCY_POS);
+    result = fram_wrar_cmd(&qspi_host_fram_obj, CR5_ADDR_VOLATILE, tx, access_mode); /* Sets the register latency (RLC) */
+    check_status("WRAR command failed", result);
 
-	printf("Read QSPI F-RAM SR1 ");
-	result = fram_read_SRxCRx_cmd (&qspi_host_fram_obj, MEM_CMD_RDSR2, rx, access_mode, REG_LATENCY);
-	check_status("RDSR2 command failed", result);
-	printf("0x%02X\r\n", rx[0]);
+    /*******************************************************************************
+    * Read and Display Device ID and Unique ID of QSPI F-RAM
+    ********************************************************************************/
+    
+    printf("Read QSPI F-RAM 8-byte DID - ");
+    result = fram_read_id_cmd (&qspi_host_fram_obj, MEM_CMD_RDID, rx, &length, access_mode, REG_LATENCY);
+    check_status("RDID command failed", result);
 
-	printf("Read QSPI F-RAM CR1 ");
-	result = fram_read_SRxCRx_cmd (&qspi_host_fram_obj, MEM_CMD_RDCR1, rx, access_mode, REG_LATENCY);
-	check_status("RDCR1 command failed", result);
-	printf("0x%02X\r\n", rx[0]);
+    for(index = 0; index < length; index++)
+    {
+        printf("0x%02X ", rx[index]);
+    }
+    printf("\r\n");
 
-	printf("Read QSPI F-RAM CR2 ");
-	result = fram_read_SRxCRx_cmd (&qspi_host_fram_obj, MEM_CMD_RDCR2, rx, access_mode, REG_LATENCY);
-	check_status("RDCR2 command failed", result);
-	printf("0x%02X\r\n", rx[0]);
+    printf("Read QSPI F-RAM 8-byte UDID - ");
+    result = fram_read_id_cmd (&qspi_host_fram_obj, MEM_CMD_RUID, rx, &length, access_mode, REG_LATENCY);
+    check_status("RUID command failed", result);
 
-	printf("Read QSPI F-RAM CR4 ");
-	result = fram_read_SRxCRx_cmd (&qspi_host_fram_obj, MEM_CMD_RDCR4, rx, access_mode, REG_LATENCY);
-	check_status("RDCR4 command failed", result);
-	printf("0x%02X\r\n", rx[0]);
+    for(index = 0; index < length; index++)
+    {
+        printf("0x%02X ", rx[index]);
+    }
+    printf("\r\n\r\n");
 
-	printf("Read QSPI F-RAM CR5 ");
-	result = fram_read_SRxCRx_cmd (&qspi_host_fram_obj, MEM_CMD_RDCR5, rx, access_mode, REG_LATENCY);
-	check_status("RDCR5 command failed", result);
-	printf("0x%02X\r\n\r\n", rx[0]);
+    /*******************************************************************************
+    * Read and Display All Status and Configuration Registers
+    ********************************************************************************/
+    
+    printf("Set WEN in SR0\r\n");
+    result = fram_opcode_only_cmd(&qspi_host_fram_obj, MEM_CMD_WREN, access_mode);
+    check_status("WREN command failed", result);
 
-	/*******************************************************************************
-	* Write to F-RAM; print written data via UART
-	********************************************************************************/
+    printf("Read QSPI F-RAM SR0 ");
+    result = fram_read_SRxCRx_cmd (&qspi_host_fram_obj, MEM_CMD_RDSR1, rx, access_mode, REG_LATENCY);
+    check_status("RDSR1 command failed", result);
+    printf("0x%02X\r\n", rx[0]);    
 
-	for(index = 0; index < PACKET_SIZE_BYTES; index++)
-	{
-		write_data[index] = (uint8_t)index + USER_DATA;
-	}
+    printf("Read QSPI F-RAM SR1 ");
+    result = fram_read_SRxCRx_cmd (&qspi_host_fram_obj, MEM_CMD_RDSR2, rx, access_mode, REG_LATENCY);
+    check_status("RDSR2 command failed", result);
+    printf("0x%02X\r\n", rx[0]);
 
-	length = PACKET_SIZE_BYTES;
-	result = fram_write_cmd (&qspi_host_fram_obj, MEM_CMD_WRITE, MEM_ADDRESS, MODE_BYTE, write_data, &length, access_mode);
-	check_status("Memory write command failed", result);
+    printf("Read QSPI F-RAM CR1 ");
+    result = fram_read_SRxCRx_cmd (&qspi_host_fram_obj, MEM_CMD_RDCR1, rx, access_mode, REG_LATENCY);
+    check_status("RDCR1 command failed", result);
+    printf("0x%02X\r\n", rx[0]);
 
-	printf("F-RAM write data\r\n");
+    printf("Read QSPI F-RAM CR2 ");
+    result = fram_read_SRxCRx_cmd (&qspi_host_fram_obj, MEM_CMD_RDCR2, rx, access_mode, REG_LATENCY);
+    check_status("RDCR2 command failed", result);
+    printf("0x%02X\r\n", rx[0]);
 
-	for(index = 0; index < PACKET_SIZE_BYTES; index++)
-	{
-		printf("0x%02X ", write_data[index]);
-	}
+    printf("Read QSPI F-RAM CR4 ");
+    result = fram_read_SRxCRx_cmd (&qspi_host_fram_obj, MEM_CMD_RDCR4, rx, access_mode, REG_LATENCY);
+    check_status("RDCR4 command failed", result);
+    printf("0x%02X\r\n", rx[0]);
 
-	printf("\r\n\r\n");
+    printf("Read QSPI F-RAM CR5 ");
+    result = fram_read_SRxCRx_cmd (&qspi_host_fram_obj, MEM_CMD_RDCR5, rx, access_mode, REG_LATENCY);
+    check_status("RDCR5 command failed", result);
+    printf("0x%02X\r\n\r\n", rx[0]);
 
-	/*******************************************************************************
-	* Read from F-RAM; print written data via UART
-	********************************************************************************/
+    /*******************************************************************************
+    * Write to F-RAM; print written data via UART
+    ********************************************************************************/
 
-	result = fram_read_cmd (&qspi_host_fram_obj, MEM_CMD_READ, MEM_ADDRESS, MODE_BYTE, read_data, &length, access_mode, MEM_LATENCY);
-	check_status("Memory read command failed", result);
+    for(index = 0; index < PACKET_SIZE_BYTES; index++)
+    {
+        write_data[index] = (uint8_t)index + USER_DATA;
+    }
 
-	printf("F-RAM read data\r\n");
+    length = PACKET_SIZE_BYTES;
+    result = fram_write_cmd (&qspi_host_fram_obj, MEM_CMD_WRITE, MEM_ADDRESS, MODE_BYTE, write_data, &length, access_mode);
+    check_status("Memory write command failed", result);
 
-	for(index = 0; index < PACKET_SIZE_BYTES; index++)
-	{
-		printf("0x%02X ", read_data[index]);
-	}
+    printf("F-RAM write data\r\n");
 
-	printf("\r\n");
+    for(index = 0; index < PACKET_SIZE_BYTES; index++)
+    {
+        printf("0x%02X ", write_data[index]);
+    }
 
-	for(index = 0; index < PACKET_SIZE_BYTES; index++)
-	{
-		if(read_data[index] != write_data[index])
-		{
-			cyhal_gpio_write(CYBSP_LED_RGB_RED, CYBSP_LED_STATE_ON);
-			break;
-		}
-		else
-		{
-			cyhal_gpio_write(CYBSP_LED_RGB_GREEN, CYBSP_LED_STATE_ON);
-		}
-	}
+    printf("\r\n\r\n");
 
-	/*****************************************************************/
+    /*******************************************************************************
+    * Read from F-RAM; print written data via UART
+    ********************************************************************************/
 
-	for(;;)
-	{
-		/* Loop forever */
-	}
+    result = fram_read_cmd (&qspi_host_fram_obj, MEM_CMD_READ, MEM_ADDRESS, MODE_BYTE, read_data, &length, access_mode, MEM_LATENCY);
+    check_status("Memory read command failed", result);
+
+    printf("F-RAM read data\r\n");
+
+    for(index = 0; index < PACKET_SIZE_BYTES; index++)
+    {
+        printf("0x%02X ", read_data[index]);
+    }
+
+    printf("\r\n");
+
+    for(index = 0; index < PACKET_SIZE_BYTES; index++)
+    {
+        if(read_data[index] != write_data[index])
+        {
+            check_status("Data mismatch", PACKET_SIZE_BYTES);
+        }
+    }
+
+    printf("\r\n================================================================================\r\n");
+    printf("\r\nSUCCESS: Read data matches with written data!\r\n");
+    printf("\r\n================================================================================\r\n");
+
+    /* Toggle LED on if read data matches written data */
+    for(;;)
+    {
+        cyhal_gpio_toggle(CYBSP_USER_LED);
+        cyhal_system_delay_ms(LED_TOGGLE_DELAY_MSEC);
+    }
 }

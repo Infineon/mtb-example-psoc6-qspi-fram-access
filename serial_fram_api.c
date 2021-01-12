@@ -1,23 +1,24 @@
-/*
-* serial_fram_api.c
+/******************************************************************************
+* File Name: serial_fram_api.c
 *
-* Description - Provides API for interfacing with Cypress Exelon-Ultra (QSPI F-RAM).
-* This API is a wrapper around the QSPI HAL API to make it specific for QSPI F-RAM access.
+* Description: Provides API for interfacing with Cypress Exelon-Ultra (QSPI
+*              F-RAM). This API is a wrapper around the QSPI HAL API to make it
+*              specific for QSPI F-RAM access.
 *
-******************************************************************************
-* Copyright (2019), Cypress Semiconductor Corporation.
-******************************************************************************
+*******************************************************************************
+* (c) 2019-2020, Cypress Semiconductor Corporation. All rights reserved.
+*******************************************************************************
 * This software, including source code, documentation and related materials
-* (“Software”), is owned by Cypress Semiconductor Corporation or one of its
-* subsidiaries (“Cypress”) and is protected by and subject to worldwide patent
+* ("Software"), is owned by Cypress Semiconductor Corporation or one of its
+* subsidiaries ("Cypress") and is protected by and subject to worldwide patent
 * protection (United States and foreign), United States copyright laws and
 * international treaty provisions. Therefore, you may use this Software only
 * as provided in the license agreement accompanying the software package from
-* which you obtained this Software (“EULA”).
+* which you obtained this Software ("EULA").
 *
-* If no EULA applies, Cypress hereby grants you a personal, nonexclusive,
+* If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
 * non-transferable license to copy, modify, and compile the Software source
-* code solely for use in connection with Cypress’s integrated circuit products.
+* code solely for use in connection with Cypress's integrated circuit products.
 * Any reproduction, modification, translation, compilation, or representation
 * of this Software except as specified above is prohibited without the express
 * written permission of Cypress.
@@ -30,11 +31,11 @@
 * Software or any product or circuit described in the Software. Cypress does
 * not authorize its products for use in any products where a malfunction or
 * failure of the Cypress product may reasonably be expected to result in
-* significant property damage, injury or death (“High Risk Product”). By
-* including Cypress’s product in a High Risk Product, the manufacturer of such
+* significant property damage, injury or death ("High Risk Product"). By
+* including Cypress's product in a High Risk Product, the manufacturer of such
 * system or application assumes all risk of such use and in doing so agrees to
 * indemnify Cypress against all liability.
-*****************************************​**************************************/
+*******************************************************************************/
 
 /******************************************************************************
 * Header file (s)
@@ -70,19 +71,19 @@ cyhal_qspi_command_t command_frame;
 
 cy_rslt_t fram_opcode_only_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t cmd, fram_bus_type_t bus_width)
 {
-	uint8_t tx[ONE_BYTE_ACCESS];
-	size_t tx_length = 0;
-	
-	command_frame.instruction.bus_width = bus_width;
-	command_frame.instruction.value = cmd;
-	command_frame.instruction.disabled = false;
+    uint8_t tx[ONE_BYTE_ACCESS];
+    size_t tx_length = 0;
+    
+    command_frame.instruction.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+    command_frame.instruction.value = cmd;
+    command_frame.instruction.disabled = false;
 
-	command_frame.address.disabled = true;
-	command_frame.mode_bits.disabled = true;
-	command_frame.dummy_count = 0;
-	command_frame.data.bus_width = bus_width;
+    command_frame.address.disabled = true;
+    command_frame.mode_bits.disabled = true;
+    command_frame.dummy_count = 0;
+    command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-	return cyhal_qspi_transfer(qspi_host_fram, &command_frame, tx, tx_length, tx, tx_length);
+    return cyhal_qspi_transfer(qspi_host_fram, &command_frame, tx, tx_length, tx, tx_length);
 }
 
 /*******************************************************************************
@@ -110,19 +111,19 @@ cy_rslt_t fram_opcode_only_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t cmd, fram_
 
 cy_rslt_t fram_read_SRxCRx_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint8_t *reg_rdata, fram_bus_type_t bus_width, uint8_t latency_code)
 {
-	size_t reg_length = ONE_BYTE_ACCESS;
+    size_t reg_length = ONE_BYTE_ACCESS;
 
-	command_frame.instruction.bus_width = bus_width;
-	command_frame.instruction.value = opcode;
-	command_frame.instruction.disabled = false;
-	
-	command_frame.address.disabled = true;
-	command_frame.mode_bits.disabled = true;
-	command_frame.dummy_count = latency_code;
+    command_frame.instruction.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+    command_frame.instruction.value = opcode;
+    command_frame.instruction.disabled = false;
+    
+    command_frame.address.disabled = true;
+    command_frame.mode_bits.disabled = true;
+    command_frame.dummy_count = latency_code;
 
-	command_frame.data.bus_width = bus_width;
+    command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-	return cyhal_qspi_read(qspi_host_fram, &command_frame, reg_rdata, &reg_length);
+    return cyhal_qspi_read(qspi_host_fram, &command_frame, reg_rdata, &reg_length);
 }
 
 /*******************************************************************************
@@ -147,22 +148,22 @@ cy_rslt_t fram_read_SRxCRx_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, ui
 *******************************************************************************/
 cy_rslt_t fram_wrar_cmd (cyhal_qspi_t *qspi_host_fram, uint32_t reg_address, uint8_t *reg_wdata, fram_bus_type_t bus_width)
 {
-	size_t tx_length = ONE_BYTE_ACCESS;
+    size_t tx_length = ONE_BYTE_ACCESS;
 
-	command_frame.instruction.bus_width = bus_width;
-	command_frame.instruction.value = MEM_CMD_WRAR;
-	command_frame.instruction.disabled = false;
+    command_frame.instruction.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+    command_frame.instruction.value = MEM_CMD_WRAR;
+    command_frame.instruction.disabled = false;
 
-	command_frame.address.bus_width = bus_width;
-	command_frame.address.size = CYHAL_QSPI_CFG_SIZE_24;
-	command_frame.address.value = reg_address;
-	command_frame.address.disabled = false;
-	command_frame.mode_bits.disabled = true;
-	command_frame.dummy_count = 0;
+    command_frame.address.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+    command_frame.address.size = CYHAL_QSPI_CFG_SIZE_24;
+    command_frame.address.value = reg_address;
+    command_frame.address.disabled = false;
+    command_frame.mode_bits.disabled = true;
+    command_frame.dummy_count = 0;
 
-	command_frame.data.bus_width = bus_width;
+    command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-	return cyhal_qspi_write(qspi_host_fram, &command_frame, reg_wdata, &tx_length);
+    return cyhal_qspi_write(qspi_host_fram, &command_frame, reg_wdata, &tx_length);
 }
 
 /*******************************************************************************
@@ -189,23 +190,23 @@ cy_rslt_t fram_wrar_cmd (cyhal_qspi_t *qspi_host_fram, uint32_t reg_address, uin
 *******************************************************************************/
 cy_rslt_t fram_rdar_cmd (cyhal_qspi_t *qspi_host_fram, uint32_t reg_address, uint8_t *reg_rdata, fram_bus_type_t bus_width, uint8_t latency_code)
 {
-	size_t reg_length = ONE_BYTE_ACCESS;
+    size_t reg_length = ONE_BYTE_ACCESS;
 
-	command_frame.instruction.bus_width = bus_width;
-	command_frame.instruction.value = MEM_CMD_RDAR;
-	command_frame.instruction.disabled = false;
+    command_frame.instruction.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+    command_frame.instruction.value = MEM_CMD_RDAR;
+    command_frame.instruction.disabled = false;
 
-	command_frame.address.bus_width = bus_width;
-	command_frame.address.size = CYHAL_QSPI_CFG_SIZE_24;
-	command_frame.address.value = reg_address;
-	command_frame.address.disabled = false;
+    command_frame.address.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+    command_frame.address.size = CYHAL_QSPI_CFG_SIZE_24;
+    command_frame.address.value = reg_address;
+    command_frame.address.disabled = false;
 
-	command_frame.mode_bits.disabled = true;
-	command_frame.dummy_count = latency_code;
+    command_frame.mode_bits.disabled = true;
+    command_frame.dummy_count = latency_code;
 
-	command_frame.data.bus_width = bus_width;
+    command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-	return cyhal_qspi_read(qspi_host_fram, &command_frame, reg_rdata, &reg_length);
+    return cyhal_qspi_read(qspi_host_fram, &command_frame, reg_rdata, &reg_length);
 }
 
 /*******************************************************************************
@@ -234,17 +235,17 @@ cy_rslt_t fram_rdar_cmd (cyhal_qspi_t *qspi_host_fram, uint32_t reg_address, uin
 *******************************************************************************/
 cy_rslt_t fram_read_id_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint8_t *id_rdata, size_t *id_length, fram_bus_type_t bus_width, uint8_t latency_code)
 {
-	command_frame.instruction.bus_width = bus_width;
-	command_frame.instruction.value = opcode;
-	command_frame.instruction.disabled = false;
+    command_frame.instruction.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+    command_frame.instruction.value = opcode;
+    command_frame.instruction.disabled = false;
 
-	command_frame.address.disabled = true;
-	command_frame.mode_bits.disabled = true;
-	command_frame.dummy_count = latency_code;
+    command_frame.address.disabled = true;
+    command_frame.mode_bits.disabled = true;
+    command_frame.dummy_count = latency_code;
 
-	command_frame.data.bus_width = bus_width;
+    command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-	return cyhal_qspi_read(qspi_host_fram, &command_frame, id_rdata, id_length);
+    return cyhal_qspi_read(qspi_host_fram, &command_frame, id_rdata, id_length);
 }
 
 /*******************************************************************************
@@ -277,30 +278,30 @@ cy_rslt_t fram_read_id_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint8_
 *******************************************************************************/
 cy_rslt_t fram_read_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint32_t mem_address, uint8_t mode_byte, uint8_t *mem_rdata, size_t *data_length, fram_bus_type_t bus_width, uint8_t latency_code)
 {
-	command_frame.instruction.bus_width = bus_width;
-	command_frame.instruction.value = opcode;
-	command_frame.instruction.disabled = false;
+    command_frame.instruction.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+    command_frame.instruction.value = opcode;
+    command_frame.instruction.disabled = false;
 
-	command_frame.address.bus_width = bus_width;
-	command_frame.address.size = CYHAL_QSPI_CFG_SIZE_24;
-	command_frame.address.value = mem_address;
-	command_frame.address.disabled = false;
+    command_frame.address.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+    command_frame.address.size = CYHAL_QSPI_CFG_SIZE_24;
+    command_frame.address.value = mem_address;
+    command_frame.address.disabled = false;
 
-	if (opcode == MEM_CMD_FAST_READ)
-	{
-		command_frame.mode_bits.disabled = false;
-		command_frame.mode_bits.bus_width = bus_width;
-		command_frame.mode_bits.size = CYHAL_QSPI_CFG_SIZE_8;
-		command_frame.mode_bits.value = mode_byte;
-	}
-	else
-	{
-		command_frame.mode_bits.disabled = true;
-	}
-	command_frame.dummy_count = latency_code;
-	command_frame.data.bus_width = bus_width;
+    if (opcode == MEM_CMD_FAST_READ)
+    {
+        command_frame.mode_bits.disabled = false;
+        command_frame.mode_bits.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+        command_frame.mode_bits.size = CYHAL_QSPI_CFG_SIZE_8;
+        command_frame.mode_bits.value = mode_byte;
+    }
+    else
+    {
+        command_frame.mode_bits.disabled = true;
+    }
+    command_frame.dummy_count = latency_code;
+    command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-	return cyhal_qspi_read(qspi_host_fram, &command_frame, mem_rdata, data_length);
+    return cyhal_qspi_read(qspi_host_fram, &command_frame, mem_rdata, data_length);
 }
 
 /*******************************************************************************
@@ -331,39 +332,39 @@ cy_rslt_t fram_read_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint32_t 
 *******************************************************************************/
 cy_rslt_t fram_write_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint32_t mem_address, uint8_t mode_byte, uint8_t *mem_wdata, size_t *data_length, fram_bus_type_t bus_width)
 {
-	cy_rslt_t result;
-	
-	result = fram_opcode_only_cmd (qspi_host_fram, MEM_CMD_WREN, bus_width);
-	
-	if(result == CY_RSLT_SUCCESS)
-	{
-		command_frame.instruction.bus_width = bus_width;
-		command_frame.instruction.value = opcode;
-		command_frame.instruction.disabled = false;
+    cy_rslt_t result;
+    
+    result = fram_opcode_only_cmd (qspi_host_fram, MEM_CMD_WREN, bus_width);
+    
+    if(result == CY_RSLT_SUCCESS)
+    {
+        command_frame.instruction.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+        command_frame.instruction.value = opcode;
+        command_frame.instruction.disabled = false;
 
-		command_frame.address.bus_width = bus_width;
-		command_frame.address.size = CYHAL_QSPI_CFG_SIZE_24;
-		command_frame.address.value = mem_address;
-		command_frame.address.disabled = false;
+        command_frame.address.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+        command_frame.address.size = CYHAL_QSPI_CFG_SIZE_24;
+        command_frame.address.value = mem_address;
+        command_frame.address.disabled = false;
 
-		if (opcode == MEM_CMD_FAST_WRITE)
-		{
-			command_frame.mode_bits.bus_width = bus_width;
-			command_frame.mode_bits.size = CYHAL_QSPI_CFG_SIZE_8;
-			command_frame.mode_bits.value = mode_byte;
-			command_frame.mode_bits.disabled = false;
-		}
-		else
-		{
-			command_frame.mode_bits.disabled = true;
-		}	
-		command_frame.dummy_count = 0;
-		command_frame.data.bus_width = bus_width;
+        if (opcode == MEM_CMD_FAST_WRITE)
+        {
+            command_frame.mode_bits.bus_width = (cyhal_qspi_bus_width_t)bus_width;
+            command_frame.mode_bits.size = CYHAL_QSPI_CFG_SIZE_8;
+            command_frame.mode_bits.value = mode_byte;
+            command_frame.mode_bits.disabled = false;
+        }
+        else
+        {
+            command_frame.mode_bits.disabled = true;
+        }   
+        command_frame.dummy_count = 0;
+        command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-		result = cyhal_qspi_write(qspi_host_fram, &command_frame, mem_wdata, data_length);
-	}
-	
-	return result;
+        result = cyhal_qspi_write(qspi_host_fram, &command_frame, mem_wdata, data_length);
+    }
+    
+    return result;
 }
 
 #if defined(__cplusplus)

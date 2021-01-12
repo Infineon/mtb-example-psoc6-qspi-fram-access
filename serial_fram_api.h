@@ -1,25 +1,24 @@
-
-/***************************************************************************//**
-* \serial_fram_api.h
+/******************************************************************************
+* File Name: serial_fram_api.h
 *
-* \brief
-* Defines function prototypes and macros for F-RAM access in SPI/DPI/QPI modes.
-* See CY15x104QSN datasheet for details on the command macros defined in this file.
+* Description: Defines function prototypes and macros for F-RAM access in
+*              SPI/DPI/QPI modes. See CY15x104QSN datasheet for details on the
+*              command macros defined in this file.
 *
-******************************************************************************
-* Copyright (2019), Cypress Semiconductor Corporation.
-******************************************************************************
+*******************************************************************************
+* (c) 2019-2020, Cypress Semiconductor Corporation. All rights reserved.
+*******************************************************************************
 * This software, including source code, documentation and related materials
-* (“Software”), is owned by Cypress Semiconductor Corporation or one of its
-* subsidiaries (“Cypress”) and is protected by and subject to worldwide patent
+* ("Software"), is owned by Cypress Semiconductor Corporation or one of its
+* subsidiaries ("Cypress") and is protected by and subject to worldwide patent
 * protection (United States and foreign), United States copyright laws and
 * international treaty provisions. Therefore, you may use this Software only
 * as provided in the license agreement accompanying the software package from
-* which you obtained this Software (“EULA”).
+* which you obtained this Software ("EULA").
 *
-* If no EULA applies, Cypress hereby grants you a personal, nonexclusive,
+* If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
 * non-transferable license to copy, modify, and compile the Software source
-* code solely for use in connection with Cypress’s integrated circuit products.
+* code solely for use in connection with Cypress's integrated circuit products.
 * Any reproduction, modification, translation, compilation, or representation
 * of this Software except as specified above is prohibited without the express
 * written permission of Cypress.
@@ -32,11 +31,11 @@
 * Software or any product or circuit described in the Software. Cypress does
 * not authorize its products for use in any products where a malfunction or
 * failure of the Cypress product may reasonably be expected to result in
-* significant property damage, injury or death (“High Risk Product”). By
-* including Cypress’s product in a High Risk Product, the manufacturer of such
+* significant property damage, injury or death ("High Risk Product"). By
+* including Cypress's product in a High Risk Product, the manufacturer of such
 * system or application assumes all risk of such use and in doing so agrees to
 * indemnify Cypress against all liability.
-*****************************************​**************************************/
+*******************************************************************************/
 
 #pragma once
 
@@ -54,9 +53,9 @@ extern "C" {
 
 typedef enum
 {
-	FRAM_BUS_TYPE_SPI = CYHAL_QSPI_CFG_BUS_SINGLE,
-	FRAM_BUS_TYPE_DPI = CYHAL_QSPI_CFG_BUS_DUAL,
-	FRAM_BUS_TYPE_QPI = CYHAL_QSPI_CFG_BUS_QUAD
+    FRAM_BUS_TYPE_SPI = CYHAL_QSPI_CFG_BUS_SINGLE,
+    FRAM_BUS_TYPE_DPI = CYHAL_QSPI_CFG_BUS_DUAL,
+    FRAM_BUS_TYPE_QPI = CYHAL_QSPI_CFG_BUS_QUAD
 }fram_bus_type_t;
 
 /***************************************
@@ -70,12 +69,12 @@ typedef enum
 #define MEM_CMD_QIOR              (0xEB)    /* Memory read opcode - Quad IO Read (QIOR) */
 #define MEM_CMD_DOR               (0x3B)    /* Memory read opcode - Dual output Read (DOR) */
 #define MEM_CMD_QOR               (0x6B)    /* Memory read opcode - Quad output Read (QOR) */
-#define MEM_CMD_SSRD              (0x4B) 	/* Special sector -256 byte read */
+#define MEM_CMD_SSRD              (0x4B)    /* Special sector -256 byte read */
 
 /* QSPI F-RAM Write Opcodes*/
-#define MEM_CMD_WRITE             (0x02) 	/* Memory WRITE opcode */
-#define MEM_CMD_WREN              (0x06) 	/* Write Enable */
-#define MEM_CMD_SSWR              (0x42) 	/* Special sector -256 byte write */
+#define MEM_CMD_WRITE             (0x02)    /* Memory WRITE opcode */
+#define MEM_CMD_WREN              (0x06)    /* Write Enable */
+#define MEM_CMD_SSWR              (0x42)    /* Special sector -256 byte write */
 #define MEM_CMD_FAST_WRITE        (0xDA)    /* Fast Write opcode */
 #define MEM_CMD_DIW               (0xA2)    /* Dual input write - data on dual line */
 #define MEM_CMD_DIOW              (0xA1)    /* Dual input input write - address and data on dual line */
@@ -83,26 +82,26 @@ typedef enum
 #define MEM_CMD_QIOW              (0xD2)    /* Quad input input write - address and data on quad line */
 
 /* Status and Configuration Register Opcodes */
-#define MEM_CMD_WRSR              (0x01) 	/* Write the status and configuration registers (SR1, CR1, CR2, CR4, CR5) */
-#define MEM_CMD_WRDI              (0x04) 	/* Write disable the write enable latch */
-#define MEM_CMD_RDSR1             (0x05) 	/* Read Status Register 1 (SR1) */
-#define MEM_CMD_RDSR2             (0x07) 	/* Read Status Register 2 (SR2) */
-#define MEM_CMD_RDCR1             (0x35) 	/* Read Configuration Register 1 (CR1) */
-#define MEM_CMD_RDCR2             (0x3F) 	/* Read Configuration Register 2 (CR2) */
-#define MEM_CMD_RDCR4             (0x45) 	/* Read Configuration Register 4 (CR4) */
-#define MEM_CMD_RDCR5             (0x5E) 	/* Read Configuration Register 5 (CR5) */
-#define MEM_CMD_WRAR              (0x71) 	/* Write to any one register (SR1, CR1, CR2, CR4, CR5), one byte at a time */
-#define MEM_CMD_RDAR              (0x65) 	/* Read from any one register (SR1, CR1, CR2, CR4, CR5), one byte at a time */
+#define MEM_CMD_WRSR              (0x01)    /* Write the status and configuration registers (SR1, CR1, CR2, CR4, CR5) */
+#define MEM_CMD_WRDI              (0x04)    /* Write disable the write enable latch */
+#define MEM_CMD_RDSR1             (0x05)    /* Read Status Register 1 (SR1) */
+#define MEM_CMD_RDSR2             (0x07)    /* Read Status Register 2 (SR2) */
+#define MEM_CMD_RDCR1             (0x35)    /* Read Configuration Register 1 (CR1) */
+#define MEM_CMD_RDCR2             (0x3F)    /* Read Configuration Register 2 (CR2) */
+#define MEM_CMD_RDCR4             (0x45)    /* Read Configuration Register 4 (CR4) */
+#define MEM_CMD_RDCR5             (0x5E)    /* Read Configuration Register 5 (CR5) */
+#define MEM_CMD_WRAR              (0x71)    /* Write to any one register (SR1, CR1, CR2, CR4, CR5), one byte at a time */
+#define MEM_CMD_RDAR              (0x65)    /* Read from any one register (SR1, CR1, CR2, CR4, CR5), one byte at a time */
 
-/* Device ID Access Opcodes*/	
-#define MEM_CMD_RDID              (0x9F) 	/* Command to read 8-byte device ID */
-#define MEM_CMD_RDSN              (0xC3) 	/* Command to read 8-byte Serial Number (SN) */
-#define MEM_CMD_RUID              (0x4C) 	/* Command to read 8-byte unique ID */
-#define MEM_CMD_WRSN              (0xC2) 	/* Command to write 8-byte Serial Number (SN) */
+/* Device ID Access Opcodes*/   
+#define MEM_CMD_RDID              (0x9F)    /* Command to read 8-byte device ID */
+#define MEM_CMD_RDSN              (0xC3)    /* Command to read 8-byte Serial Number (SN) */
+#define MEM_CMD_RUID              (0x4C)    /* Command to read 8-byte unique ID */
+#define MEM_CMD_WRSN              (0xC2)    /* Command to write 8-byte Serial Number (SN) */
 
 /* Low Power Mode Commands*/
-#define MEM_CMD_ENTDPD            (0xB9) 	/* Enter DPD*/
-#define MEM_CMD_ENTHBN            (0xBA) 	/* Enter Hibernate*/
+#define MEM_CMD_ENTDPD            (0xB9)    /* Enter DPD*/
+#define MEM_CMD_ENTHBN            (0xBA)    /* Enter Hibernate*/
 
 /* Status and Configuration Register Address */
 #define SR0_ADDR                  (0x000000) /* Status Register 0 address for read using RDAR command */
