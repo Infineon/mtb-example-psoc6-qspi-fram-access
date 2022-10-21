@@ -6,7 +6,7 @@
 *              command macros defined in this file.
 *
 *******************************************************************************
-* Copyright 2019-2021, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2019-2022, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -143,3 +143,5 @@ cy_rslt_t fram_write_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint32_t
 #if defined(__cplusplus)
 }
 #endif
+/* [] END OF FILE */
+

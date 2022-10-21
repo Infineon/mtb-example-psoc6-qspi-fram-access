@@ -4,10 +4,10 @@
 * Description: This example demonstrates the Cypress' QSPI F-RAM access
 *              using PSoC 6 QSPI HAL (cyhal_qspi) API
 *
-* Related Document: See Readme.md
+* Related Document: See README.md
 *
 *******************************************************************************
-* Copyright 2019-2021, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2019-2022, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -158,6 +158,18 @@ int main(void)
     fram_bus_type_t access_mode;
     cy_rslt_t result;
 
+    const cyhal_qspi_slave_pin_config_t qspi_pins = {
+        .io[0] = CYBSP_QSPI_D0,
+        .io[1] = CYBSP_QSPI_D1,
+        .io[2] = CYBSP_QSPI_D2,
+        .io[3] = CYBSP_QSPI_D3,
+        .io[4] = NC,
+        .io[5] = NC,
+        .io[6] = NC,
+        .io[7] = NC,
+        .ssel = CYBSP_QSPI_FRAM_SSEL
+    };
+
     /* Set up the device based on configurator selections */
     result = cybsp_init();
 
@@ -189,8 +201,7 @@ int main(void)
     check_status("User LED initialization failed", result);
 
     /* Initialize the QSPI control and pins */
-    result = cyhal_qspi_init(&qspi_host_fram_obj, CYBSP_QSPI_D0, CYBSP_QSPI_D1, CYBSP_QSPI_D2, CYBSP_QSPI_D3, NC, NC,
-                            NC, NC, CYBSP_QSPI_SCK, CYBSP_QSPI_FRAM_SSEL, QSPI_BUS_FREQUENCY_HZ, 0);
+    result = cyhal_qspi_init(&qspi_host_fram_obj, CYBSP_QSPI_SCK, &qspi_pins, QSPI_BUS_FREQUENCY_HZ, 0, NULL);
     check_status("CYHAL QSPI initialization failed", result);
 
 
@@ -358,3 +369,5 @@ int main(void)
         cyhal_system_delay_ms(LED_TOGGLE_DELAY_MSEC);
     }
 }
+/* [] END OF FILE */
+

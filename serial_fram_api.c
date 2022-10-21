@@ -6,7 +6,7 @@
 *              specific for QSPI F-RAM access.
 *
 *******************************************************************************
-* Copyright 2019-2021, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2019-2022, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -78,10 +78,10 @@ cy_rslt_t fram_opcode_only_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t cmd, fram_
 
     command_frame.address.disabled = true;
     command_frame.mode_bits.disabled = true;
-    command_frame.dummy_count = 0;
+    command_frame.dummy_cycles.dummy_count = 0;
     command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-    return cyhal_qspi_transfer(qspi_host_fram, &command_frame, tx, tx_length, tx, tx_length);
+    return cyhal_qspi_transfer(qspi_host_fram, &command_frame, 0, tx, tx_length, tx, tx_length);
 }
 
 /*******************************************************************************
@@ -117,11 +117,11 @@ cy_rslt_t fram_read_SRxCRx_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, ui
     
     command_frame.address.disabled = true;
     command_frame.mode_bits.disabled = true;
-    command_frame.dummy_count = latency_code;
+    command_frame.dummy_cycles.dummy_count = latency_code;
 
     command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-    return cyhal_qspi_read(qspi_host_fram, &command_frame, reg_rdata, &reg_length);
+    return cyhal_qspi_read(qspi_host_fram, &command_frame, 0, reg_rdata, &reg_length);
 }
 
 /*******************************************************************************
@@ -154,14 +154,13 @@ cy_rslt_t fram_wrar_cmd (cyhal_qspi_t *qspi_host_fram, uint32_t reg_address, uin
 
     command_frame.address.bus_width = (cyhal_qspi_bus_width_t)bus_width;
     command_frame.address.size = CYHAL_QSPI_CFG_SIZE_24;
-    command_frame.address.value = reg_address;
     command_frame.address.disabled = false;
     command_frame.mode_bits.disabled = true;
-    command_frame.dummy_count = 0;
+    command_frame.dummy_cycles.dummy_count = 0;
 
     command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-    return cyhal_qspi_write(qspi_host_fram, &command_frame, reg_wdata, &tx_length);
+    return cyhal_qspi_write(qspi_host_fram, &command_frame, reg_address, reg_wdata, &tx_length);
 }
 
 /*******************************************************************************
@@ -196,15 +195,14 @@ cy_rslt_t fram_rdar_cmd (cyhal_qspi_t *qspi_host_fram, uint32_t reg_address, uin
 
     command_frame.address.bus_width = (cyhal_qspi_bus_width_t)bus_width;
     command_frame.address.size = CYHAL_QSPI_CFG_SIZE_24;
-    command_frame.address.value = reg_address;
     command_frame.address.disabled = false;
 
     command_frame.mode_bits.disabled = true;
-    command_frame.dummy_count = latency_code;
+    command_frame.dummy_cycles.dummy_count = latency_code;
 
     command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-    return cyhal_qspi_read(qspi_host_fram, &command_frame, reg_rdata, &reg_length);
+    return cyhal_qspi_read(qspi_host_fram, &command_frame, reg_address, reg_rdata, &reg_length);
 }
 
 /*******************************************************************************
@@ -239,11 +237,12 @@ cy_rslt_t fram_read_id_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint8_
 
     command_frame.address.disabled = true;
     command_frame.mode_bits.disabled = true;
-    command_frame.dummy_count = latency_code;
+    command_frame.dummy_cycles.dummy_count = latency_code;
+    command_frame.dummy_cycles.bus_width = CYHAL_QSPI_CFG_BUS_SINGLE;
 
     command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-    return cyhal_qspi_read(qspi_host_fram, &command_frame, id_rdata, id_length);
+    return cyhal_qspi_read(qspi_host_fram, &command_frame, 0, id_rdata, id_length);
 }
 
 /*******************************************************************************
@@ -282,7 +281,6 @@ cy_rslt_t fram_read_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint32_t 
 
     command_frame.address.bus_width = (cyhal_qspi_bus_width_t)bus_width;
     command_frame.address.size = CYHAL_QSPI_CFG_SIZE_24;
-    command_frame.address.value = mem_address;
     command_frame.address.disabled = false;
 
     if (opcode == MEM_CMD_FAST_READ)
@@ -296,10 +294,10 @@ cy_rslt_t fram_read_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint32_t 
     {
         command_frame.mode_bits.disabled = true;
     }
-    command_frame.dummy_count = latency_code;
+    command_frame.dummy_cycles.dummy_count = latency_code;
     command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-    return cyhal_qspi_read(qspi_host_fram, &command_frame, mem_rdata, data_length);
+    return cyhal_qspi_read(qspi_host_fram, &command_frame, mem_address, mem_rdata, data_length);
 }
 
 /*******************************************************************************
@@ -342,7 +340,6 @@ cy_rslt_t fram_write_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint32_t
 
         command_frame.address.bus_width = (cyhal_qspi_bus_width_t)bus_width;
         command_frame.address.size = CYHAL_QSPI_CFG_SIZE_24;
-        command_frame.address.value = mem_address;
         command_frame.address.disabled = false;
 
         if (opcode == MEM_CMD_FAST_WRITE)
@@ -356,10 +353,10 @@ cy_rslt_t fram_write_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint32_t
         {
             command_frame.mode_bits.disabled = true;
         }   
-        command_frame.dummy_count = 0;
+        command_frame.dummy_cycles.dummy_count = 0;
         command_frame.data.bus_width = (cyhal_qspi_bus_width_t)bus_width;
 
-        result = cyhal_qspi_write(qspi_host_fram, &command_frame, mem_wdata, data_length);
+        result = cyhal_qspi_write(qspi_host_fram, &command_frame, mem_address, mem_wdata, data_length);
     }
     
     return result;
@@ -370,5 +367,5 @@ cy_rslt_t fram_write_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint32_t
 #endif /* __cplusplus */
 
 #endif /* CY_IP_MXSMIF */
-
+/* [] END OF FILE */
 
