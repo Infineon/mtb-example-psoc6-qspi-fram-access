@@ -7,7 +7,7 @@
 * Related Document: See README.md
 *
 *******************************************************************************
-* Copyright 2019-2022, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2019-2023, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -43,6 +43,7 @@
 #include "cybsp.h"
 #include "cy_retarget_io.h"
 
+
 /*******************************************************************************
 * Macros
 ********************************************************************************/
@@ -54,6 +55,7 @@
 #define REG_DEFAULT_VAL         (0x00)       /* Factory default configuration register value */ 
 
 cyhal_qspi_t qspi_host_fram_obj;
+
 
 /*******************************************************************************
 * Function Name: check_status
@@ -81,6 +83,7 @@ void check_status(char *message, uint32_t status)
         while(true); /* Wait forever here when error occurs. */
     }
 }
+
 
 /************************************************************************************
 * Function Name: reset_to_factory_default
@@ -130,6 +133,7 @@ void reset_to_factory_default (void)
     result = fram_wrar_cmd(&qspi_host_fram_obj, CR5_ADDR_VOLATILE, tx, FRAM_BUS_TYPE_SPI); /* Set the access mode */    
     check_status("WRAR command failed", result);
 }
+
 
 /*******************************************************************************
 * Function Name: main
@@ -369,5 +373,7 @@ int main(void)
         cyhal_system_delay_ms(LED_TOGGLE_DELAY_MSEC);
     }
 }
+
+
 /* [] END OF FILE */
 

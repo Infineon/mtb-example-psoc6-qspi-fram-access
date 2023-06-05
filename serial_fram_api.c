@@ -6,7 +6,7 @@
 *              specific for QSPI F-RAM access.
 *
 *******************************************************************************
-* Copyright 2019-2022, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2019-2023, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -37,7 +37,6 @@
 * of such system or application assumes all risk of such use and in doing
 * so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
-
 #include "serial_fram_api.h"
 
 #ifdef CY_IP_MXSMIF
@@ -69,7 +68,7 @@ cyhal_qspi_command_t command_frame;
 
 cy_rslt_t fram_opcode_only_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t cmd, fram_bus_type_t bus_width)
 {
-    uint8_t tx[ONE_BYTE_ACCESS];
+    uint8_t tx[ONE_BYTE_ACCESS] = {0U};
     size_t tx_length = 0;
     
     command_frame.instruction.bus_width = (cyhal_qspi_bus_width_t)bus_width;
@@ -106,7 +105,6 @@ cy_rslt_t fram_opcode_only_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t cmd, fram_
 *  cy_rslt_t - command transfer status over Quad SPI bus
 *
 *******************************************************************************/
-
 cy_rslt_t fram_read_SRxCRx_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint8_t *reg_rdata, fram_bus_type_t bus_width, uint8_t latency_code)
 {
     size_t reg_length = ONE_BYTE_ACCESS;
@@ -367,5 +365,7 @@ cy_rslt_t fram_write_cmd (cyhal_qspi_t *qspi_host_fram, uint8_t opcode, uint32_t
 #endif /* __cplusplus */
 
 #endif /* CY_IP_MXSMIF */
+
+
 /* [] END OF FILE */
 
